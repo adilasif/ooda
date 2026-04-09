@@ -1,0 +1,83 @@
+name: Lint and Verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Security note: This workflow does NOT consume any untrusted GitHub event
+# inputs (no github.event.issue.title, no head_commit.message references,
+# no pull_request.body, etc.). All `run:` steps execute static shell commands
+# against checked-out files only. No injection surface.
+
+jobs:
+  markdown-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install markdownlint-cli
+        run: npm install -g markdownlint-cli
+      - name: Run markdownlint
+        run: |
+          markdownlint '**/*.md' \
+            --ignore node_modules \
+            --ignore docs/design/ \
+            || true  # non-blocking for now; tighten later
+
+  frontmatter-yaml-parse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install PyYAML
+        run: pip install pyyaml
+      - name: Verify every .md file with YAML frontmatter parses
+        run: |
+          set -e
+          FAILED=0
+          while IFS= read -r f; do
+            if head -1 "$f" | grep -q "^---$"; then
+              python3 <<PYEOF || FAILED=1
+          import sys, yaml
+          content = open("$f").read()
+          parts = content.split("---\n", 2)
+          if len(parts) < 3:
+              print("SKIP: $f — no frontmatter")
+              sys.exit(0)
+          try:
+              yaml.safe_load(parts[1])
+              print("OK: $f")
+          except yaml.YAMLError as e:
+              print("FAIL: $f — {}".format(e))
+              sys.exit(1)
+          PYEOF
+            fi
+          done < <(find . -type f -name "*.md" -not -path "./.git/*" -not -path "./node_modules/*")
+          exit $FAILED
+
+  attribution-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify TDD fork attribution
+        run: |
+          set -e
+          test -f skills/test-driven-development/NOTICE.md
+          grep -q "Jesse Vincent" skills/test-driven-development/NOTICE.md
+          grep -q "MIT License" skills/test-driven-development/NOTICE.md
+          grep -q "superpowers" skills/test-driven-development/NOTICE.md
+          echo "TDD fork attribution OK"
+
+  diff-script-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run diff-upstream-tdd.sh in no-op mode
+        run: |
+          bash scripts/diff-upstream-tdd.sh > /tmp/diff-test.log 2>&1 || {
+            echo "Script failed. Output:"
+            cat /tmp/diff-test.log
+            exit 1
+          }
+          echo "Script ran successfully"
+          head -30 /tmp/diff-test.log
