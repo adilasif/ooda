@@ -1,6 +1,6 @@
 ---
 name: test-driven-development
-description: Use when implementing any feature or bugfix, before writing implementation code
+description: Use when implementing any feature or bugfix, before writing implementation code. This is a fork of superpowers/test-driven-development with MUTATE and KILL phases inserted between GREEN and REFACTOR, gated by per-rigor-profile mutation kill-rate thresholds.
 ---
 
 # Test-Driven Development (TDD)
@@ -181,6 +181,39 @@ Confirm:
 **Test fails?** Fix code, not test.
 
 **Other tests fail?** Fix now.
+
+### MUTATE - Seed Mutations (hardened/fortified rigor only)
+
+**When to run:** Only at `hardened` or `fortified` rigor levels. Skip entirely for `patch` and `standard`. Read `rigor.profiles.<level>.mutation_threshold` from the project adapter — if null, skip this phase.
+
+Mutation testing verifies that your tests actually *catch* bugs rather than merely exercising the code. A test that passes when the code is broken is a bad test.
+
+After GREEN (all tests passing), run your project's mutation tester over the modules you modified. Typical tools by language:
+- Python: `mutmut`, `cosmic-ray`
+- JavaScript/TypeScript: `Stryker Mutator`
+- Ruby: `mutant`
+- Go: `go-mutesting`
+
+Mutation tools introduce small changes (mutations) to your code — flipping operators, changing constants, removing statements — and check whether your test suite catches them (tests fail = mutant killed) or lets them slip by (tests pass = mutant survived).
+
+**Your target kill rate** is the `mutation_threshold` from the adapter (typically 0.80 for hardened, 0.90 for fortified).
+
+### KILL - Hunt Surviving Mutants
+
+**When to run:** Immediately after MUTATE, at the same rigor levels.
+
+For each surviving mutant, one of two things is true:
+
+1. **Your test suite has a gap.** Add a test that catches the mutant. This is the common case.
+2. **The mutant is equivalent.** Some code changes don't change observable behavior (e.g., `i++` vs `i = i + 1` in a loop counter that's never compared). These are "equivalent mutants" and cannot be killed by any test. Document them.
+
+**For genuine gaps:** write a new failing test (RED), then watch it catch the mutant (GREEN for the new test, dead mutant for the old one). This is TDD for your test suite — the mutant is the failing "requirement."
+
+**For equivalent mutants:** at fortified rigor, the adapter may require an equivalent mutant registry (`rigor.profiles.fortified.equivalent_mutant_registry_required: true`). If so, record the surviving mutant in the registry (typical locations: `docs/mutation/equivalent-mutants.md`, or a project-specific path) with the mutant diff, the reason it's equivalent, and a justification.
+
+Re-run mutation testing after killing the reachable mutants. Continue until your kill rate meets the threshold, either by adding tests or by justifying equivalent mutants.
+
+**Escape valve:** if you hit 80-90% of the threshold but the remaining mutants are genuinely hard to kill (deeply coupled to environment, timing, or external state), present the situation to the user and ask whether to (a) accept the lower kill rate with justification, (b) refactor the code to be more testable, or (c) defer the remaining work. Never silently accept a lower kill rate than the adapter's threshold.
 
 ### REFACTOR - Clean Up
 
