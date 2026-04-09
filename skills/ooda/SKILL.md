@@ -84,11 +84,10 @@ Skill slot values use a `<source>:<skill-name>` format:
 
 - `superpowers:<skill>` — a skill from the upstream superpowers plugin (e.g., `superpowers:brainstorming`, `superpowers:writing-plans`)
 - `ooda:<skill>` — a skill shipped by this plugin (e.g., `ooda:test-driven-development` for the forked TDD skill)
-- `<other-plugin>:<skill>` — a skill from any other installed plugin (e.g., `pr-review-toolkit:review-pr`)
+- `<other-plugin>:<skill>` — a skill from any other installed plugin (e.g., `code-review:code-review`)
 - `local:<skill>` — a project-local skill living in the consumer project's `.claude/skills/<skill>/` directory (e.g., `local:capture-knowledge` for a custom per-project skill)
 - `null` — no skill; fall back to inline prose for that obligation
 
 ## What to do next
 
 After reading this router, immediately load `phases/observe.md` and begin the Observe phase.
-
