@@ -51,3 +51,20 @@ When no adapter file is present, the skill runs with these synthetic defaults:
 - `plans.*` default to `docs/plans/` (active) and `docs/plans/completed/` (archived).
 - `knowledge.destination_path` defaults to `docs/knowledge/`.
 
+## Phase routing
+
+This SKILL.md is a router. The substantive behavior lives in per-phase files loaded on demand.
+
+| Phase | When to load | File | Purpose |
+|---|---|---|---|
+| **Observe** | Session start, after adapter discovery | `phases/observe.md` | Session context loading, stash hygiene, issue/epic lookup, state summary announcement |
+| **Orient** | Before any design, plan, or implementation work | `phases/orient.md` | Rigor profile selection, design gate (if required), plan gate (if required), plan quality check |
+| **Decide** | Before validation, code review, or PR creation | `phases/decide.md` | Phase handover contract checks, validation registry checks, pre-PR gate list, code review invocation |
+| **Act** | Implementation through completion | `phases/act.md` | Worktree setup, TDD loop, dev deploy (if configured), PR creation, knowledge capture, plan archival, changelog, session debrief, post-completion stash hygiene |
+
+### Reference files (loaded on demand)
+
+- `rigor-profiles.md` — the four rigor profile definitions (patch, standard, hardened, fortified). Load when selecting a rigor level in the Orient phase.
+- `handover-contracts.md` — the evidence-per-phase matrix. Load at any phase transition to verify readiness.
+- `debrief.md` — the four-question root cause framework. Load when running a session debrief in the Act phase.
+
