@@ -1,0 +1,28 @@
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Editors
+.idea/
+.vscode/
+*.sublime-*
+
+# Python (if we add Python tooling)
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Node (if we add JS tooling)
+node_modules/
+
+# Env
+.env
+.env.local
+
+# Claude Code local overrides
+.claude/settings.local.json
