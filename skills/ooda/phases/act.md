@@ -12,7 +12,7 @@ If the Orient phase didn't create a worktree because no code changes were expect
 
 Invoke the skill named in `skills.tdd` (default: `ooda:test-driven-development` — this plugin's fork with MUTATE/KILL phases).
 
-The TDD skill knows about rigor-aware kill-rate thresholds. At hardened/fortified rigor, it will execute the full RED → GREEN → MUTATE → KILL → REFACTOR loop with the adapter's `rigor.profiles.<level>.mutation_threshold` as the kill-rate target. At standard rigor, it skips MUTATE/KILL. At patch rigor, it runs RED → GREEN only.
+The TDD skill knows about rigor-aware kill-rate thresholds. At hardened/fortified rigor, it will execute the full RED → GREEN → MUTATE → KILL → REFACTOR loop with the adapter's `rigor.profiles.<level>.mutation_threshold` as the kill-rate target. At standard and patch rigor, it runs the upstream RED → GREEN → REFACTOR loop with no mutation phases.
 
 If `skills.tdd` is set to `superpowers:test-driven-development` (the upstream version), the MUTATE/KILL phases are skipped entirely regardless of rigor — the adapter override signals the project doesn't want mutation testing.
 
@@ -30,7 +30,7 @@ When implementation is complete, load `decide.md` and run its pre-PR gate list.
 
 ## Post-completion half
 
-Run these four steps after the work is done (PR created, task complete, plan executed):
+Run these five steps after the work is done (PR created, task complete, plan executed):
 
 ### 1. Validation gap check
 
@@ -46,7 +46,7 @@ Present findings to the user. Implement small improvements in the same PR if tri
 
 ### 2. Knowledge capture
 
-Invoke the skill named in `skills.capture_knowledge`.
+Invoke the skill named in `skills.capture_knowledge`. This is a *second pass* after the pre-push capture in Decide Gate 5 — it catches learnings from review feedback, CI failures, and merge-time validation that were not visible before push. Skip if nothing new happened between PR open and close.
 
 - If set: run it. The skill handles session scanning, classification, structured doc generation, and cascade checks for stale guides/runbooks.
 - If null: inline fallback: "Summarize decisions, experiments, failures, evolution, and rejected approaches from this session into structured documents under `knowledge.destination_path`. Check `knowledge.cascade_check_paths` for any guides/runbooks that may need updating based on what you learned."

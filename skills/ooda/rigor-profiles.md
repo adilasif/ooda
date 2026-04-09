@@ -12,7 +12,7 @@ Each profile's concrete thresholds (mutation kill rate, dev deploy requirement, 
 
 **When to use:** Config changes, docs, dependency bumps, worktree-exempt files, typo fixes. Anything where the cost of rollback is near-zero.
 
-**Discipline:** Minimal. RED → GREEN only (no refactor enforcement). Worktree not required. Knowledge capture optional (only if something surprising happened). No debrief.
+**Discipline:** Minimal. RED → GREEN → REFACTOR (upstream TDD loop, no mutation phases). Worktree not required. Knowledge capture optional (only if something surprising happened). No debrief.
 
 ### Standard
 
