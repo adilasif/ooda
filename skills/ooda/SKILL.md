@@ -16,3 +16,38 @@ The development lifecycle follows Boyd's OODA loop:
 
 This skill is project-agnostic. Project-specific behavior (issue tracker, quality commands, knowledge destinations, skill slot bindings) is read from a per-project **adapter file** at `.claude/ooda.project.md` (or variants). Missing adapter → default mode. Missing adapter slot → graceful degradation for that concern only.
 
+## Adapter discovery protocol
+
+When the user invokes `/ooda` (with or without an issue ID argument), perform these steps in order:
+
+1. **Look for the adapter file** at these paths, first-match-wins:
+   - `.claude/ooda.project.md`
+   - `.claude/skills/ooda/project.md`
+   - `ooda.project.md` (repo root)
+
+2. **If no adapter found:**
+   Announce: "No `/ooda` adapter detected in this project. Running in **default mode** — I'll use universal lifecycle prose without project-specific wiring. To enable project bindings, run `/ooda-init`."
+   Then proceed with default mode (see "Default mode" below).
+
+3. **If adapter found but frontmatter invalid** (missing `schema_version`, malformed YAML, unknown top-level keys):
+   Announce the specific error and stop. Offer: "Run `/ooda-validate` for full diagnostics."
+
+4. **If adapter found and valid:**
+   - Parse frontmatter into session context.
+   - Note which adapter body sections are present (`## Project Overview`, `## Notable Risks and Outage History`, `## Custom Workflows`, `## Phase Overrides`, `## Release Process`, `## Session Start Checklist`, `## Pre-PR Gate Additions`, `## Tenant / Environment Inventory`). Missing sections mean "use default prose for that concern."
+   - Proceed to the Observe phase (see `phases/observe.md`).
+
+### Default mode (synthetic adapter)
+
+When no adapter file is present, the skill runs with these synthetic defaults:
+- `skills.*` slots resolve to `superpowers:*` equivalents where superpowers has a matching skill (e.g., `skills.brainstorm: superpowers:brainstorming`).
+- `skills.tdd` defaults to `ooda:test-driven-development` (this plugin's fork).
+- `skills.capture_knowledge`, `skills.review_pr` default to `null` — obligation prose inlined, no skill invocation.
+- `rigor.default` is `standard`.
+- `rigor.profiles.*` use hard-coded universal values (see `rigor-profiles.md`).
+- `branch.worktree_policy` defaults to `required` for non-exempt files.
+- `branch.worktree_exempt_paths` defaults to empty list.
+- All of `issue_tracker`, `pm_doc_store`, `dev_deploy`, `validation_registry`, `auto_merge`, `quality.*` are absent — corresponding phases are skipped with an announcement.
+- `plans.*` default to `docs/plans/` (active) and `docs/plans/completed/` (archived).
+- `knowledge.destination_path` defaults to `docs/knowledge/`.
+
