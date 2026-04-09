@@ -68,3 +68,27 @@ This SKILL.md is a router. The substantive behavior lives in per-phase files loa
 - `handover-contracts.md` — the evidence-per-phase matrix. Load at any phase transition to verify readiness.
 - `debrief.md` — the four-question root cause framework. Load when running a session debrief in the Act phase.
 
+## Skill invocation rule (the key discipline)
+
+Whenever this skill or any phase file under it refers to a sub-skill (e.g., "the brainstorming skill," "the TDD skill," "the code review skill"), you MUST:
+
+1. **Read the adapter's `skills.*` slot** for that sub-skill role.
+2. **If set:** invoke the named skill via the Skill tool. Supply any project-specific constraints from the adapter's `## Custom Workflows` body section.
+3. **If null, unset, or the adapter is missing:** the obligation still holds. Use the inline prose fallback provided in the relevant phase file.
+
+Never invoke a sub-skill by hardcoded canonical name from the core skill files. The indirection through `skills.*` is what makes `/ooda` project-agnostic.
+
+### Skill name prefixes
+
+Skill slot values use a `<source>:<skill-name>` format:
+
+- `superpowers:<skill>` — a skill from the upstream superpowers plugin (e.g., `superpowers:brainstorming`, `superpowers:writing-plans`)
+- `ooda:<skill>` — a skill shipped by this plugin (e.g., `ooda:test-driven-development` for the forked TDD skill)
+- `<other-plugin>:<skill>` — a skill from any other installed plugin (e.g., `pr-review-toolkit:review-pr`)
+- `local:<skill>` — a project-local skill living in the consumer project's `.claude/skills/<skill>/` directory (e.g., `local:capture-knowledge` for a custom per-project skill)
+- `null` — no skill; fall back to inline prose for that obligation
+
+## What to do next
+
+After reading this router, immediately load `phases/observe.md` and begin the Observe phase.
+
