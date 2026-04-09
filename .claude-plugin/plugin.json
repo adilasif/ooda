@@ -1,0 +1,25 @@
+{
+  "name": "ooda",
+  "description": "Engineering lifecycle orchestrator for Claude Code: OODA-loop-structured dev cycle with rigor profiles, phase handover contracts, and per-project adapters. Built on superpowers.",
+  "version": "0.0.1",
+  "author": {
+    "name": "Adil Asif",
+    "url": "https://github.com/adilasif"
+  },
+  "homepage": "https://github.com/adilasif/ooda",
+  "repository": "https://github.com/adilasif/ooda",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "workflow",
+    "ooda",
+    "lifecycle",
+    "tdd",
+    "rigor-profiles"
+  ],
+  "superpowersCompatibility": {
+    "tested": "5.0.7",
+    "minimum": "5.0.0",
+    "maximum": null
+  }
+}
